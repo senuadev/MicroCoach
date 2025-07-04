@@ -1,0 +1,136 @@
+<!-- app/templates/lessons/lesson.html -->
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">{{ lesson.title }}</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <div id="content-container">
+                <!-- Content will be loaded here by JavaScript -->
+            </div>
+            
+            <div id="quiz-container" class="mt-4 d-none">
+                <h5>Quick Check</h5>
+                <div id="quiz-questions">
+                    <!-- Questions will be loaded here by JavaScript -->
+                </div>
+                <button id="submit-quiz" class="btn btn-primary mt-3">Check Answer</button>
+                <div id="feedback" class="mt-3"></div>
+            </div>
+            
+            <div class="mt-4">
+                <button id="next-btn" class="btn btn-success d-none">Continue</button>
+                <div id="completion-message" class="alert alert-success d-none">
+                    Lesson completed! <a href="{{ url_for('dashboard.index') }}">Return to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contentContainer = document.getElementById('content-container');
+    const quizContainer = document.getElementById('quiz-container');
+    const quizQuestions = document.getElementById('quiz-questions');
+    const submitBtn = document.getElementById('submit-answer');
+    const nextBtn = document.getElementById('next-btn');
+    const feedbackDiv = document.getElementById('feedback');
+    
+    const chunks = JSON.parse('{{ chunks|safe }}');
+    const questions = JSON.parse('{{ questions|safe }}');
+    let currentChunk = 0;
+    let userAnswers = [];
+    
+    function showChunk(index) {
+        if (index >= chunks.length) {
+            contentContainer.innerHTML = '<p>Lesson completed!</p>';
+            nextBtn.classList.add('d-none');
+            document.getElementById('completion-message').classList.remove('d-none');
+            return;
+        }
+        
+        contentContainer.innerHTML = chunks[index].content;
+        quizContainer.classList.remove('d-none');
+        nextBtn.classList.add('d-none');
+        renderQuiz(questions[index]);
+    }
+    
+    function renderQuiz(question) {
+        quizQuestions.innerHTML = `
+            <div class="mb-3">
+                <p class="fw-bold">${question.question}</p>
+                ${question.options.map((opt, i) => `
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="quiz" id="opt${i}" value="${i}">
+                        <label class="form-check-label" for="opt${i}">
+                            ${opt}
+                        </label>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    function checkAnswer() {
+        const selected = document.querySelector('input[name="quiz"]:checked');
+        if (!selected) return;
+        
+        const question = questions[currentChunk];
+        const isCorrect = (parseInt(selected.value) === question.correct_index);
+        const isCompleted = (currentChunk === chunks.length - 1);  // Is this the last chunk?
+
+        
+        // Send progress to server
+        fetch(`/lessons/{{ lesson.id }}/progress`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chunk_index: currentChunk,
+                is_correct: isCorrect,
+                is_completed: isCompleted
+            })
+        });
+        
+        if (isCorrect) {
+            feedbackDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i> Correct! ${question.feedback_correct}
+                </div>
+            `;
+            nextBtn.classList.remove('d-none');
+        } else {
+            feedbackDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-x-circle-fill"></i> Incorrect. ${question.feedback_incorrect}
+                </div>
+                <div class="review-content mt-3 p-3 bg-light">
+                    <h6>Review:</h6>
+                    ${chunks[currentChunk].review_content || 'Please review the material and try again.'}
+                </div>
+            `;
+        }
+    }
+    
+    nextBtn.addEventListener('click', () => {
+        currentChunk++;
+        showChunk(currentChunk);
+        feedbackDiv.innerHTML = '';
+        quizContainer.classList.add('d-none');
+    });
+    
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'submit-quiz') {
+            checkAnswer();
+        }
+    });
+    
+    // Start the lesson
+    showChunk(0);
+});
+</script>
+{% endblock %}

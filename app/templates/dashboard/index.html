@@ -1,0 +1,163 @@
+<!-- app/templates/dashboard/index.html -->
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Dashboard</h1>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Lessons</h6>
+                            <h3 class="mb-0">{{ stats.lessons_completed }}/{{ stats.total_lessons }}</h3>
+                            <small>{{ stats.lessons_completed }} completed, {{ stats.total_lessons - stats.lessons_completed }} remaining</small>
+                        </div>
+                        <i class="bi bi-book" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Day Streak</h6>
+                            <h3 class="mb-0">{{ stats.day_streak }}</h3>
+                            <small>Keep it going!</small>
+                        </div>
+                        <i class="bi bi-fire" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Completion</h6>
+                            <h3 class="mb-0">{{ stats.completion_rate }}%</h3>
+                            <small>Overall progress</small>
+                        </div>
+                        <i class="bi bi-graph-up" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-dark h-100">
+              <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                          <h6 class="card-subtitle mb-2">Points</h6>
+                          <h3 class="mb-0">{{ stats.total_points }}</h3>
+                          <small>{{ stats.achievements_earned }} achievements</small>
+                      </div>
+                      <i class="bi bi-trophy" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <!-- Navigation Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-collection-play" style="font-size: 2.5rem; color: #0d6efd;"></i>
+                    <h5 class="card-title mt-3">Browse Lessons</h5>
+                    <p class="card-text">Explore and start new lessons</p>
+                    <a href="{{ url_for('lessons.lesson_page', lesson_id=1) }}" class="btn btn-outline-primary">View Lessons</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up" style="font-size: 2.5rem; color: #198754;"></i>
+                    <h5 class="card-title mt-3">View Progress</h5>
+                    <p class="card-text">Track your learning journey</p>
+                    <a href="#" class="btn btn-outline-success">View Progress</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-trophy" style="font-size: 2.5rem; color: #ffc107;"></i>
+                    <h5 class="card-title mt-3">Achievements</h5>
+                    <p class="card-text">View your badges and rewards</p>
+                    <a href="#" class="btn btn-warning">View Achievements</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for lesson in stats.recent_lessons %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ lesson.title }}</h6>
+                            <small class="text-muted">{{ lesson.duration }}</small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ lesson.status }}</small>
+                            <span class="badge bg-primary rounded-pill">View</span>
+                        </div>
+                        <!-- In your dashboard template where you list lessons -->
+                        <a href="{{ url_for('lessons.lesson_page', lesson_id=1) }}" class="btn btn-primary">
+                            Start Lesson
+                        </a>
+                    </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Recent Achievements</h5>
+                  <a href="#" class="btn btn-sm btn-outline-warning">View All</a>
+              </div>
+              <div class="list-group list-group-flush">
+                  {% if stats.recent_achievements %}
+                      {% for achievement in stats.recent_achievements %}
+                      <div class="list-group-item">
+                          <div class="d-flex w-100 justify-content-between">
+                              <div>
+                                  <h6 class="mb-1">
+                                      <i class="bi bi-trophy-fill me-2" style="color: gold;"></i>
+                                      {{ achievement.title }}
+                                  </h6>
+                                  <p class="mb-1">{{ achievement.description }}</p>
+                              </div>
+                              <span class="badge bg-warning text-dark">+{{ achievement.points }} pts</span>
+                          </div>
+                          <small class="text-muted">{{ achievement.created_at|format_datetime }}</small>
+                      </div>
+                      {% endfor %}
+                  {% else %}
+                      <div class="list-group-item">
+                          <p class="text-muted text-center my-2">No achievements yet. Complete lessons to earn points!</p>
+                      </div>
+                  {% endif %}
+              </div>
+          </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
