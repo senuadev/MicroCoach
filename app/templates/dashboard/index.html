@@ -73,7 +73,8 @@
                     <i class="bi bi-collection-play" style="font-size: 2.5rem; color: #0d6efd;"></i>
                     <h5 class="card-title mt-3">Browse Lessons</h5>
                     <p class="card-text">Explore and start new lessons</p>
-                    <a href="{{ url_for('lessons.lesson_page', lesson_id=1) }}" class="btn btn-outline-primary">View Lessons</a>
+                    <!-- <a href="{{ url_for('lessons.lesson_page', lesson_id=1) }}" class="btn btn-outline-primary">View Lessons</a> -->
+                    <a href="{{ url_for('lessons.list_lessons') }}" class="btn btn-primary">View All Lessons</a>
                 </div>
             </div>
         </div>
@@ -83,7 +84,7 @@
                     <i class="bi bi-graph-up" style="font-size: 2.5rem; color: #198754;"></i>
                     <h5 class="card-title mt-3">View Progress</h5>
                     <p class="card-text">Track your learning journey</p>
-                    <a href="#" class="btn btn-outline-success">View Progress</a>
+                    <a href="{{ url_for('dashboard.view_progress') }}" class="btn btn-outline-success">View Progress</a>
                 </div>
             </div>
         </div>
@@ -93,7 +94,7 @@
                     <i class="bi bi-trophy" style="font-size: 2.5rem; color: #ffc107;"></i>
                     <h5 class="card-title mt-3">Achievements</h5>
                     <p class="card-text">View your badges and rewards</p>
-                    <a href="#" class="btn btn-warning">View Achievements</a>
+                    <a href="{{ url_for('dashboard.view_achievements') }}" class="btn btn-warning">View Achievements</a>
                 </div>
             </div>
         </div>

@@ -1,0 +1,144 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>My Learning Progress</h1>
+        <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <!-- Progress Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2">Total Lessons</h6>
+                    <h3 class="mb-0">{{ stats.total_lessons }}</h3>
+                    <small>Available to complete</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2">Completed</h6>
+                    <h3 class="mb-0">{{ stats.completed }}</h3>
+                    <small>Great job!</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2">In Progress</h6>
+                    <h3 class="mb-0">{{ stats.in_progress }}</h3>
+                    <small>Keep going!</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2">Completion Rate</h6>
+                    <h3 class="mb-0">{{ stats.completion_rate }}%</h3>
+                    <small>Your progress</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Chart -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Course Progress</h5>
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar" 
+                     style="width: {{ stats.completion_rate }}%" 
+                     aria-valuenow="{{ stats.completion_rate }}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                    {{ stats.completion_rate }}%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lessons List -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">All Lessons</h5>
+        </div>
+        <div class="list-group list-group-flush">
+            {% for lesson in lessons %}
+            {% set lesson_progress = progress.get(lesson.id, {}) %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">{{ lesson.title }}</h6>
+                        <small class="text-muted">{{ lesson.description }}</small>
+                    </div>
+                    <div>
+                        {% if lesson_progress.get('status') == 'completed' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Completed
+                            </span>
+                        {% elif lesson_progress.get('status') == 'in_progress' %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-arrow-repeat"></i> In Progress
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-dash-circle"></i> Not Started
+                            </span>
+                        {% endif %}
+                        <a href="{{ url_for('lessons.lesson_page', lesson_id=lesson.id) }}" 
+                           class="btn btn-sm btn-outline-primary ms-2">
+                            {% if lesson_progress %}Continue{% else %}Start{% endif %}
+                        </a>
+                    </div>
+                </div>
+                {% if lesson_progress %}
+                <div class="mt-2">
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{ (lesson_progress.get('score', 0) / 100) * 100 }}%"
+                             aria-valuenow="{{ lesson_progress.get('score', 0) }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        Last updated: {{ lesson_progress.get('timestamp') | format_datetime }}
+                        {% if lesson_progress.get('score') %}
+                            • Score: {{ "%.0f"|format(lesson_progress.get('score', 0)) }}%
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .progress {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .list-group-item {
+        transition: background-color 0.2s;
+    }
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}

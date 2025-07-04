@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from .extensions import supabase
 from config import Config
 from datetime import datetime
@@ -23,16 +23,33 @@ def create_app(config_class=Config):
     from flask import session, redirect, url_for
 
     @app.route('/')
-    def root():
+    def landing():
         if 'user' in session:
             return redirect(url_for('dashboard.index'))
-        return redirect(url_for('auth.login'))
+        #return redirect(url_for('auth.login'))
+        return render_template('landing.html')
 
     # Add datetime formatter
     @app.template_filter('format_datetime')
     def format_datetime(value, format='%b %d, %Y'):
+        if value is None:
+            return ''
+            
         if isinstance(value, str):
-            value = datetime.fromisoformat(value.replace('Z', '+00:00'))
-        return value.strftime(format)
+            # Handle different datetime string formats
+            try:
+                if 'T' in value and '+' in value:
+                    # Handle ISO 8601 format with timezone
+                    value = datetime.fromisoformat(value.replace('Z', '+00:00'))
+                else:
+                    # Handle other string formats
+                    value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                return value  # Return original if parsing fails
+                
+        if isinstance(value, datetime):
+            return value.strftime(format)
+            
+        return str(value)
         
     return app

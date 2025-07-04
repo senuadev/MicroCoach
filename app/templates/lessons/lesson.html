@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showChunk(index) {
         if (index >= chunks.length) {
             contentContainer.innerHTML = '<p>Lesson completed!</p>';
+            quizContainer.classList.add('d-none');
             nextBtn.classList.add('d-none');
             document.getElementById('completion-message').classList.remove('d-none');
             return;
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         contentContainer.innerHTML = chunks[index].content;
         quizContainer.classList.remove('d-none');
+        feedbackDiv.innerHTML = '';
         nextBtn.classList.add('d-none');
         renderQuiz(questions[index]);
     }
@@ -119,8 +121,6 @@ document.addEventListener('DOMContentLoaded', function() {
     nextBtn.addEventListener('click', () => {
         currentChunk++;
         showChunk(currentChunk);
-        feedbackDiv.innerHTML = '';
-        quizContainer.classList.add('d-none');
     });
     
     document.addEventListener('click', (e) => {

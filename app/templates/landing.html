@@ -1,0 +1,90 @@
+<!-- app/templates/landing.html -->
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="landing-page">
+    <!-- Hero Section -->
+    <section class="hero py-5 bg-light">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Welcome to MicroCoach</h1>
+                    <p class="lead mb-4">Master new skills with our bite-sized lessons and track your progress as you learn.</p>
+                    <div class="d-flex gap-3">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4">Get Started</a>
+                        <a href="#features" class="btn btn-outline-secondary btn-lg px-4">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <img src="data:image/jpeg;base64,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" alt="Learning illustration" class="img-fluid rounded-3 shadow">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Why Choose MicroCoach?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 p-3 d-inline-block">
+                                <i class="bi bi-collection-play fs-1"></i>
+                            </div>
+                            <h3>Bite-sized Lessons</h3>
+                            <p class="text-muted">Learn in small, manageable chunks that fit your schedule.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-success bg-gradient text-white rounded-3 mb-3 p-3 d-inline-block">
+                                <i class="bi bi-trophy fs-1"></i>
+                            </div>
+                            <h3>Track Progress</h3>
+                            <p class="text-muted">Monitor your learning journey and celebrate your achievements.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-info bg-gradient text-white rounded-3 mb-3 p-3 d-inline-block">
+                                <i class="bi bi-graph-up fs-1"></i>
+                            </div>
+                            <h3>Gamified Learning</h3>
+                            <p class="text-muted">Earn points and badges as you master new concepts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 bg-primary text-white">
+        <div class="container text-center py-5">
+            <h2 class="mb-4">Ready to start learning?</h2>
+            <p class="lead mb-4">Join thousands of learners already improving their skills with MicroCoach.</p>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-5">Sign Up Free</a>
+        </div>
+    </section>
+</div>
+
+<style>
+.hero {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 0 0 2rem 2rem;
+    margin-bottom: 2rem;
+}
+.feature-icon {
+    transition: transform 0.3s ease;
+}
+.card:hover .feature-icon {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

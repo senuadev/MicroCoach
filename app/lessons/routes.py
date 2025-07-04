@@ -5,6 +5,13 @@ from ..extensions import supabase
 from ..dashboard.routes import login_required
 import json
 
+@lessons_bp.route('/', methods=['GET'])
+@login_required
+def list_lessons():
+    # Fetch all lessons from the database
+    lessons = supabase.client.table('lessons').select('*').execute()
+    return render_template('lessons/list.html', lessons=lessons.data)
+    
 @lessons_bp.route('/<int:lesson_id>', methods=['GET'])
 @login_required
 def lesson_page(lesson_id):
@@ -37,15 +44,17 @@ def update_progress(lesson_id):
     chunk_index = data.get('chunk_index')
     is_correct = data.get('is_correct')
     is_completed = data.get('is_completed', False)
-    
-    # Update progress in Supabase
-    progress = supabase.client.table('progress').upsert({
+
+    status_value = 'completed' if is_completed else 'in_progress'
+    score_value = 100 if is_correct and is_completed else (100 if is_correct else 0)
+
+    # Update progress in Supabase (columns must exist in table)
+    supabase.client.table('progress').upsert({
         'user_id': user_id,
         'lesson_id': lesson_id,
-        'chunk_index': chunk_index,
-        'is_correct': is_correct,
-        'is_completed': is_completed,
-        'completed_at': 'now()'
+        'status': status_value,
+        'score': score_value,
+        'timestamp': 'now()'
     }, on_conflict='user_id,lesson_id').execute()
     
     # Award points for completing a chunk
@@ -72,6 +81,39 @@ def update_progress(lesson_id):
     return jsonify({'success': True})
 
 
+@lessons_bp.route('/seed-random', methods=['POST'])
+@login_required
+def seed_random_lessons():
+    """Seed at least 10 random lessons for quick testing."""
+    import random, uuid, datetime
+    lessons = []
+    for i in range(10):
+        title = f"Random Lesson {uuid.uuid4().hex[:6]}"
+        chunks = [
+            {
+                'content': f'<h3>Chunk {j+1}</h3><p>Placeholder content for {title}.</p>',
+                'review_content': 'Review the key concepts.'
+            } for j in range(3)
+        ]
+        questions = [
+            {
+                'question': f'Question {j+1} for {title}?',
+                'options': ['A', 'B', 'C', 'D'],
+                'correct_index': random.randint(0, 3),
+                'feedback_correct': 'Correct!',
+                'feedback_incorrect': 'Try again.'
+            } for j in range(3)
+        ]
+        lessons.append({
+            'title': title,
+            'content_chunks': chunks,
+            'quiz_questions': questions,
+            'created_at': datetime.datetime.utcnow().isoformat()
+        })
+    supabase.client.table('lessons').insert(lessons).execute()
+    return jsonify({'inserted': len(lessons)})
+
+# existing sample route
 @lessons_bp.route('/create-sample', methods=['GET'])
 def create_sample_lesson():
     sample_lesson = {
